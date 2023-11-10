@@ -1,5 +1,22 @@
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
+import mysql from 'mysql';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: process.env.DB_PASSWORD,
+  database: 'mysql'
+});
+
+db.connect(err => {
+  if (err) {
+    console.error('error connecting: ' + err.stack);
+    return;
+  }
+});
 
 const typeDefs = `#graphql
   type Book {
@@ -11,20 +28,17 @@ const typeDefs = `#graphql
   }
 `;
 
-const books = [
-  {
-    title: 'The Awakening',
-    author: 'Kate Chopin',
-  },
-  {
-    title: 'City of Glass',
-    author: 'Paul Auster',
-  },
-];
 const resolvers = {
   Query: {
-    books: () => books,
-  },
+    books: () => new Promise((resolve, reject) => {
+      db.query('SELECT * FROM books', (error, results) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(results);
+      });
+    })
+  }
 };
 const server = new ApolloServer({
   typeDefs,
