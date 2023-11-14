@@ -19,19 +19,19 @@ db.connect(err => {
 });
 
 const typeDefs = `#graphql
-  type Book {
-    title: String
-    author: String
+  type Chat {
+    message: String
+    date: String
   }
   type Query {
-    books: [Book]
+    chats: [Chat]
   }
 `;
 
 const resolvers = {
   Query: {
-    books: () => new Promise((resolve, reject) => {
-      db.query('SELECT * FROM books', (error, results) => {
+    chats: () => new Promise((resolve, reject) => {
+      db.query('SELECT * FROM chats', (error, results) => {
         if (error) {
           return reject(error);
         }
