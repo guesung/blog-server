@@ -26,6 +26,9 @@ const typeDefs = `#graphql
   type Query {
     chats: [Chat]
   }
+  type Mutation {
+  addChat(message: String!, date: String!): Chat
+}
 `;
 
 const resolvers = {
@@ -38,7 +41,21 @@ const resolvers = {
         resolve(results);
       });
     })
-  }
+  },
+  Mutation: {
+    addChat: (_, { message, date }) => {
+      return new Promise((resolve, reject) => {
+        const query = 'INSERT INTO chats (message, date) VALUES (?, ?)';
+        db.query(query, [message, date], (error, results) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve({ message, date });
+        });
+      });
+    },
+  },
+
 };
 const server = new ApolloServer({
   typeDefs,
